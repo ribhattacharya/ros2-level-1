@@ -13,6 +13,8 @@ NOTE: Build files are not uploaded to this repository. To run anything, go to `r
 - [4. Nodes](#4-nodes)
   - [4.1. Python](#41-python)
   - [4.2. C++](#42-c)
+  - [4.3. Misc](#43-misc)
+- [5. Topics](#5-topics)
 
 ## 1. Environment setup
 1. To automatically source ROS in a new terminal
@@ -55,6 +57,11 @@ NOTE: Build files are not uploaded to this repository. To run anything, go to `r
         colcon build --packages-select [PACKAGE_NAME]   // specific packages
 
 ## 4. Nodes
+- Nodes are sub-programs of the application, responsible for only one thing. 
+- They communicate with each other using topics, services and parameters.
+- Useful for organization
+- Nodes written in C++ and Python can communicate with each other. 
+- 
 ### 4.1. Python
 Create the node file inside `src/[PACKAGE_NAME]/[PACKAGE_NAME]` ([Sample python node](src/my_py_pkg/my_py_pkg/my_first_node.py)).
 
@@ -100,3 +107,26 @@ Then make the following additions to the CMakeLists.txt file,
         install(TARGETS cpp_node DESTINATION lib/${PROJECT_NAME})
 
 Steps to execute the `cpp_node` are similar as in the section above. 
+
+### 4.3. Misc
+
+1. To run the same node again (as `abc` instead of `py_test`), use
+
+        ros2 run my_py_pkg py_node --ros-args --remap __node:=[NEW_NODE_NAME]
+since two nodes with same name cannot (should not) be run together.
+
+2. To create a symlink to the node (so that it can be run directly without building again; only works for python)
+        
+        colcon build --packages-select [PACKAGE_NAME] --symlink-install
+
+## 5. Topics
+Topic is a named bus over which nodes exchange messages.
+- Topic is the *medium* over which data is transferred. A topic is associated to a msg type.
+- Data is unidirectional; publishers (nodes) send data to the topic, while subscribers (also nodes) receive data from the topic.
+- We can have *multiple* subscribers and publishers to a topic.
+- C++ publishers/subscribers can work with Python C++ subscribers.
+- Subscribers and publishers in python need some functions defined as callbacks, that execute some logic during publishing/subscribing.
+
+To remap the node name and topic names, use
+
+        ros2 run my_py_pkg py_node --ros-args -r __node:=new_node_name -r robot_news:=new_topic_name
